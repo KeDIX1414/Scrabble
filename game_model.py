@@ -1,3 +1,6 @@
+import random
+
+
 def get_letter_value(letter):
     return {
         'l': 1,
@@ -62,33 +65,57 @@ def get_index_mapping(letter):
 
 class Game(object):
     def __init__(self):
-        self.board = ([None] * 15) * 15
+        self.board = ([BoardSquare()] * 15) * 15
         self.player_hand = [None] * 7
         self.computer_hand = [None] * 7
         self.player_score = 0
         self.computer_score = 0
-        self.bag = [None] * 100
+        self.bag = ["e" * 12, "a" * 9, "i" * 9, "o" * 8, "n" * 6, "r" * 6, "t" * 6, "l" * 4,
+                    "s" * 4, "u" * 4, "d" * 4, "g" * 3, "p" * 2, "m" * 2, "c" * 2, "b" * 2,
+                    "y" * 2, "w" * 2, "v" * 2, "h" * 2, "f" * 2, "blank" * 2, "k", "x", "j", "q", "z"]
 
     def create_board(self):
         pass
 
-    def create_bag(self):
+    def add_word(self, word, square, direction):
         pass
 
-    def add_word(self, word, start, direction):
-        pass
+    def get_tiles(self, opponent, number):
+        new_tiles = []
+        for x in range(number):
+            new_tiles.append(self.bag.remove(random.randrange(0, len(self.bag))))
+        if opponent == "player":
+            self.player_hand.extend(new_tiles)
+        else:
+            self.computer_hand.extend(new_tiles)
 
-    def get_tiles(self, opponent):
-        pass
+    def put_tiles(self, tiles):
+        self.bag.extend(tiles)
 
-    def remove_tiles(self, opponent):
-        pass
+    def update_score(self, opponent, addition):
+        if opponent == "player":
+            self.player_score += addition
+        else:
+            self.computer_score += addition
 
-    def update_score(self, opponent):
-        pass
+
+class BoardSquare(object):
+    def __init__(self, dictionary, square_type=None):
+        self.letter = None
+        self.square_type = square_type
+        self.cross_checks = {'North': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+                                       "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+                             'South': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+                                       "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+                             'East': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+                                      "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
+                             'West': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+                                      "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]}
+
+        self.is_anchor = False
 
 
-class Lexicon(object):
+class Dictionary(object):
     def __init__(self, dictionary):
         self.head = Node()
         for word in dictionary:
@@ -97,29 +124,45 @@ class Lexicon(object):
     def add(self, word):
         curr = self.head
         for letter in word:
-            curr = curr.add_child(letter, curr.value[1] + get_letter_value(letter))
+            if letter == word[-1]:
+                curr = curr.add_child(letter, True)
+            else:
+                curr = curr.add_child(letter, False)
 
-    def contains_word(self, word):
+    def contains(self, word):
         curr = self.head
         for letter in word:
             next_node = curr.get_child(letter)
             if next_node is None:
                 return False
             curr = next_node
-        return True
+        return curr.value[1]
 
 
 class Node(object):
-    def __init__(self, value=(None, 0)):
+    def __init__(self, value=[None, False]):
         self.value = value
         self.children = [None] * 26
 
     def get_child(self, letter):
         return self.children[get_index_mapping(letter)]
 
-    def add_child(self, letter, score):
+    def add_child(self, letter, position):
         if self.children[get_index_mapping(letter)] is not None:
+            if position:
+                self.children[get_index_mapping(letter)].value[1] = True
             return self.children[get_index_mapping(letter)]
-        new_node = Node((letter, score))
+        new_node = Node([letter, position])
         self.children[get_index_mapping(letter)] = new_node
         return new_node
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return self.value[0]
