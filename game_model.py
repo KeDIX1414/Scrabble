@@ -64,8 +64,8 @@ def get_index_mapping(letter):
 
 
 class Game(object):
-    def __init__(self):
-        self.board = ([BoardSquare()] * 15) * 15
+    def __init__(self, dimension=15):
+        self.board = [[BoardSquare()] * dimension] * dimension
         self.player_hand = [None] * 7
         self.computer_hand = [None] * 7
         self.player_score = 0
@@ -73,12 +73,20 @@ class Game(object):
         self.bag = ["e" * 12, "a" * 9, "i" * 9, "o" * 8, "n" * 6, "r" * 6, "t" * 6, "l" * 4,
                     "s" * 4, "u" * 4, "d" * 4, "g" * 3, "p" * 2, "m" * 2, "c" * 2, "b" * 2,
                     "y" * 2, "w" * 2, "v" * 2, "h" * 2, "f" * 2, "blank" * 2, "k", "x", "j", "q", "z"]
+        self.dictionary = Dictionary(["hello", "goodbye"])
 
     def create_board(self):
         pass
 
     def add_word(self, word, square, direction):
-        pass
+        x = square[0]
+        y = square[1]
+        for letter in word:
+            self.board[x][y].letter = letter
+            if direction == "across":
+                y += 1
+            else:
+                x += 1
 
     def get_tiles(self, opponent, number):
         new_tiles = []
@@ -100,7 +108,7 @@ class Game(object):
 
 
 class BoardSquare(object):
-    def __init__(self, dictionary, square_type=None):
+    def __init__(self, square_type=None):
         self.letter = None
         self.square_type = square_type
         self.cross_checks = {'North': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
@@ -112,7 +120,16 @@ class BoardSquare(object):
                              'West': ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
                                       "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]}
 
-        self.is_anchor = False
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return str(self.letter) + " " + str(self.square_type)
 
 
 class Dictionary(object):

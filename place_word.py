@@ -1,7 +1,7 @@
 from game_model import *
 
 
-def check_placement(board, word, position, direction):
+def valid_placement(board, word, position, direction):
     x = position[0]
     y = position[1]
     # check if first square is an anchor
@@ -14,14 +14,16 @@ def check_placement(board, word, position, direction):
                 return False
             elif x == len(board) - 1 and letter not in board[x - 1][y].cross_checks['South']:
                 return False
-            elif letter not in board[x + 1][y].cross_checks['North'] or letter not in board[x - 1][y].cross_checks['South']:
+            elif letter not in board[x + 1][y].cross_checks['North'] or letter not in board[x - 1][y].cross_checks[
+                'South']:
                 return False
         else:
             if y == 0 and letter not in board[x][y + 1].cross_checks['West']:
                 return False
             elif y == len(board[x]) - 1 and letter not in board[x][y - 1].cross_checks['East']:
                 return False
-            elif letter not in board[x][y + 1].cross_checks['West'] and letter not in board[x][y - 1].cross_checks['East']:
+            elif letter not in board[x][y + 1].cross_checks['West'] and letter not in board[x][y - 1].cross_checks[
+                'East']:
                 return False
         if direction == "across":
             y += 1
@@ -30,18 +32,52 @@ def check_placement(board, word, position, direction):
     return True
 
 
-def computer_turn(board):
+def is_anchor(board, position):
+    x = position[0]
+    y = position[1]
+    if x == 0 and y == 0:
+        return board[x + 1][y].letter is not None or board[x][y + 1].letter is not None
+    elif x == len(board) - 1 and y == 0:
+        return board[x - 1][y].letter is not None or board[x][y + 1].letter is not None
+    elif x == 0 and y == len(board) - 1:
+        return board[x + 1][y].letter is not None or board[x][y - 1].letter is not None
+    elif x == len(board) - 1 and y == len(board) - 1:
+        return board[x - 1][y].letter is not None or board[x][y - 1].letter is not None
+    elif x == 0:
+        return board[x + 1][y].letter is not None or board[x][y - 1].letter is not None or \
+               board[x][y + 1].letter is not None
+    elif y == 0:
+        return board[x + 1][y].letter is not None or board[x - 1][y].letter is not None or \
+               board[x][y + 1].letter is not None
+    else:
+        return board[x + 1][y].letter is not None or board[x - 1][y].letter is not None or \
+               board[x][y + 1].letter is not None or board[x][y - 1].letter is not None
+
+
+def calculate_score():
     pass
 
 
-def get_best_words(board, dictionary):
+def computer_turn():
     pass
 
 
-def find_anchors(board):
+def player_turn(game, word, position, direction):
+    if not game.dictionary.contains(game.board, word):
+        return "invalid word"
+    if not valid_placement(word, position, direction):
+        return "invalid placement"
+    else:
+        return "approved"
+
+
+def get_best_words():
     pass
 
 
-def find_cross_checks(board):
+def find_anchors():
     pass
 
+
+def find_cross_checks():
+    pass
